@@ -8,9 +8,10 @@ import QtQuick.Layouts 1.1
 
 /**********************
 /* Parking B - Tap Tempo - New approach for note duration edition
-/* v1.0.0
+/* v1.1.0
 /* ChangeLog:
 /* 	- 1.0.0: Initial releasee
+/* 	- 1.1.0: Retrieve the tempo value from tempo text (and not only the tempo multiplier)
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
@@ -72,7 +73,9 @@ MuseScore {
 
 	            if (tempoElement != null) {
 	                console.log("found text: " + tempoElement.text);
-	                tempomult = findBeatBaseFromMarking(tempoElement);
+					var res= findBeatBaseFromMarking(tempoElement);
+					tempomult=res.multiplier;
+					tempo=res.tempo;
 	                console.log("found mult: " + tempomult);
 
 	            } else {
@@ -289,18 +292,27 @@ MuseScore {
 	}
 
 	/// Analyses tempo marking text to attempt to discover the base beat being used
-	/// If a beat is detected, returns the index in the beatBaseList matching the marking
-	/// @returns -1 if beat is not detected or not present in our beatBaseList
+	/// If a beat is detected, returns the following structure:
+	/// @returns { multiplier: float, tempo: int } where
+	/// multiplier = -1 if beat is not detected or not present in our beatBaseList
+	/// tempo = 0 if tempo is not detected
 	function findBeatBaseFromMarking(tempoMarking) {
 	    // First look for metronome marking symbols
-	    var foundTempoText = tempoMarking.text.replace('<sym>space</sym>', '');
+		var foundTempoText=tempoMarking.text.replace('<sym>space</sym>', '');
 	    var foundMetronomeSymbols = foundTempoText.match(/(<sym>met.*<\/sym>)+/g);
+
+	    // strip html tags and split around '='
+		var data = foundTempoText.replace(/<.*?>/g,'').split('=');
+		var tempo=parseInt(data[1]);
+		if (isNaN(tempo)) tempo=0;
+
+
 	    if (foundMetronomeSymbols !== null) {
 	        // Locate the index in our dropdown matching the found beatString
 	        for (var i = multipliers.length; --i >= 0; ) {
 	            if (multipliers[i].sym == foundMetronomeSymbols[0]) {
 	                // Found this marking in the dropdown at metronomeMarkIndex
-	                return multipliers[i].mult;
+	                return {multiplier: multipliers[i].mult, tempo: tempo};
 	            }
 	        }
 	    } else {
@@ -322,7 +334,7 @@ MuseScore {
 	                for (var i = multipliers.length; --i >= 0; ) {
 	                    if (multipliers[i].text == beatString) {
 	                        // Found this marking in the dropdown at metronomeMarkIndex
-	                        return multipliers[i].mult;
+							return {multiplier: multipliers[i].mult, tempo: tempo};
 	                    }
 	                }
 
@@ -330,7 +342,7 @@ MuseScore {
 	            }
 	        }
 	    }
-	    return -1;
+	    return {multiplier: -1, tempo: tempo};
 	}
 
 	// ============================================================
