@@ -8,18 +8,22 @@ import QtQuick.Layouts 1.1
 
 /**********************
 /* Parking B - Tap Tempo - New approach for note duration edition
-/* v1.1.0
+/* v1.2.0
 /* ChangeLog:
 /* 	- 1.0.0: Initial releasee
 /* 	- 1.1.0: Retrieve the tempo value from tempo text (and not only the tempo multiplier)
+/* 	- 1.2.0: empty placeholder
+/* 	- 1.2.0: Qt.quit issue
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "1.0.0"
+    version: "1.2.0"
     readonly property var pluginName: "Tap tempo"
 
     pluginType: "dialog"
+
+    id: mainWindow
 
     // requiresScore: true
     requiresScore: true
@@ -153,13 +157,13 @@ MuseScore {
 
 			    font.pointSize: 13
 			    textFromValue: function (value) {
-			        var text = (value > 0) ? value : "--";
+			        var text = (value > 0) ? value : "";
 			        debugO("textFromValue", text);
 			        return text;
 			    }
 
 			    valueFromText: function (text) {
-			        var val = (text == "--") ? -1 : parseInt(text);
+			        var val = (text === "") ? -1 : parseInt(text);
 					if (isNaN(val)) val=-1; 
 			        debugO("valueFromText", val);
 			        return val;
@@ -271,9 +275,10 @@ MuseScore {
 					tempoElement.tempo = tempo * tempomult;
 					tempoElement.tempoFollowText = true; //allows for manual fiddling by the user afterwards
 					curScore.endCmd();
-					Qt.quit();
+                    mainWindow.parent.Window.window.close(); //Qt.quit()
 				}
-				onRejected: Qt.quit()
+				onRejected: 
+                    mainWindow.parent.Window.window.close(); //Qt.quit()
 
 			}
 
