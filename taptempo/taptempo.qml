@@ -115,24 +115,26 @@ MuseScore {
 	        Layout.alignment: Qt.AlignHCenter
 	        Layout.fillHeight: true
 
-	        ComboBox {
-	            id: lstMult
-	            model: multipliers
+            ComboBox {
+                id: lstMult
+                model: multipliers
 
-	            textRole: "text"
-	            valueRole: "mult"
+                textRole: "text"
+                
+                // property var valueRole: "mult"
+                property var comboValue: "mult"
 
-	            onActivated: {
-	                // loopMode = currentValue;
-	                tempomult = model[currentIndex][valueRole];
-	                console.log(tempomult);
-	            }
+                onActivated: {
+                    // loopMode = currentValue;
+                    tempomult = model[currentIndex][comboValue];
+                    console.log(tempomult);
+                }
 
-	            Binding on currentIndex {
-	                value: multipliers.map(function (e) {
-	                    return e[lstMult.valueRole]
-	                }).indexOf(tempomult);
-	            }
+                Binding on currentIndex {
+                    value: multipliers.map(function (e) {
+                        return e[lstMult.comboValue]
+                    }).indexOf(tempomult);
+                }
 
 	            implicitHeight: 60
 	            implicitWidth: 90
