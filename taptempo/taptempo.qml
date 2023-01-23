@@ -97,7 +97,7 @@ MuseScore {
 
 	    if (!tempoElement && !curSegment) {
 	        warningDialog.text = "Invalid selection. A Tempo text or a valid segment must be selected";
-	        warningDialog.quitOnClose = true;
+	      //  warningDialog.quitOnClose = true;
 	        warningDialog.open();
 	        return;
 	    }
