@@ -7,18 +7,18 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 
 /**********************
-/* Parking B - Tap Tempo - New approach for note duration edition
-/* v1.2.0
+/* Parking B - Tap Tempo
 /* ChangeLog:
 /* 	- 1.0.0: Initial releasee
 /* 	- 1.1.0: Retrieve the tempo value from tempo text (and not only the tempo multiplier)
 /* 	- 1.2.0: empty placeholder
 /* 	- 1.2.0: Qt.quit issue
+/* 	- 1.2.1: Port to MS4.0
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "1.2.0"
+    version: "1.2.1"
     readonly property var pluginName: "Tap tempo"
 
     pluginType: "dialog"
@@ -26,11 +26,16 @@ MuseScore {
     id: mainWindow
 
     // requiresScore: true
-    requiresScore: true
 
     width: 400
     height: 200
 
+    Component.onCompleted : {
+        if (mscoreMajorVersion >= 4) {
+            mainWindow.title = pluginName ;
+            mainWindow.thumbnailName = "logoTapTempo.png";
+        }
+    }
 
     readonly property int averageOn: 5
     property var lastclicks: []
