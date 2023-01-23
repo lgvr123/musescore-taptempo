@@ -120,7 +120,7 @@ MuseScore {
 	            model: multipliers
 
 	            textRole: "text"
-	            property var valueRole: "mult"
+	            valueRole: "mult"
 
 	            onActivated: {
 	                // loopMode = currentValue;
