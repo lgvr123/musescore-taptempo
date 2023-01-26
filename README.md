@@ -1,5 +1,5 @@
-# Tap Tempo plugin for MuseScore 3.x
-*Tap Tempo plugin for MuseScore 3.x* lets the user find out the BPM of part by clicking repeatedly on a button and adding this to the score as a new tempo text or changing an existing one.
+# Tap Tempo plugin for MuseScore
+*Tap Tempo plugin for MuseScore* is a plugin for MuseScore 3.x and 4.x. It lets the user find out the BPM of part by clicking repeatedly on a button and adding this to the score as a new tempo text or changing an existing one.
 <p align="center"><img src="/taptempo/logoTapTempo.png" Alt="logo" width="300" /></p>
 
 ## Download and Install ##
@@ -7,7 +7,7 @@ Download the [last stable version](https://github.com/lgvr123/musescore-taptempo
 For installation see [Plugins](https://musescore.org/en/handbook/3/plugins).
 
 ## Use in MS4.0 ##
-The *Tap Tempo* plugin has been unsuccessfully ported to MuseScore 4.0. As of now, it does not show up in MuseScore plugins list. The ported version is accessible on the "MS4" branch.
+The *Tap Tempo* plugin has been ported successfully to MuseScore 4.0. It is working well but not as googlooking as it good be. This will be improved once the plugin framework of MS4 will be updated.
 
 ## Sponsorship ##
 If you appreciate my plugins, you can support and sponsor their development on the following platforms:
