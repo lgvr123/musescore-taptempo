@@ -6,7 +6,9 @@
 Download the [last stable version](https://github.com/lgvr123/musescore-taptempo/releases).
 For installation see [Plugins](https://musescore.org/en/handbook/3/plugins).
 
-## Use in MS4.0 ##
+## Support of MS4.0
+**SUPPORTED**
+
 The *Tap Tempo* plugin has been ported successfully to MuseScore 4.0. It is working well but not as googlooking as it good be. This will be improved once the plugin framework of MS4 will be updated.
 
 ## Sponsorship ##
