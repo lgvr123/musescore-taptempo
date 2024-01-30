@@ -14,11 +14,12 @@ import QtQuick.Layouts 1.1
 /* 	- 1.2.0: empty placeholder
 /* 	- 1.2.0: Qt.quit issue
 /* 	- 1.2.1: Port to MS4.0
+/*     - 1.2.2: binding loop causing tempo to be not correctly calculated
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "1.2.1"
+    version: "1.2.2"
     readonly property var pluginName: "Tap tempo"
 
     pluginType: "dialog"
@@ -29,6 +30,8 @@ MuseScore {
 
     width: 400
     height: 200
+    
+    property int count: 0
 
     Component.onCompleted : {
         if (mscoreMajorVersion >= 4) {
@@ -40,7 +43,8 @@ MuseScore {
     readonly property int averageOn: 5
     property var lastclicks: []
     property var tempo: -1
-	property var tempomult: 1
+    property bool settingTempo: false
+    property var tempomult: 1
 
     property var tempoElement
 	
@@ -103,6 +107,12 @@ MuseScore {
 	    }
 
 	}
+
+       onTempoChanged: {
+            settingTempo=true;
+            txtTempo.value = tempo;
+            settingTempo=false;
+       }
 
 	ColumnLayout {
 	    id: layout
@@ -176,11 +186,10 @@ MuseScore {
 			        return val;
 			    }
 
-			    onValueChanged: tempo = value // triggers a Binding loop but without it manual modifications are not reported to the temp variable
-
-				Binding on value {
-					value: tempo
-				}
+			    onValueChanged: {
+                              if (settingTempo) return;
+                              tempo = value; 
+                              }
 
 			    validator: IntValidator {
 			        locale: txtTempo.locale.name
@@ -203,19 +212,23 @@ MuseScore {
 				}
 
 				onClicked: {
+      count+=1;
 					if (lastclicks.length == averageOn)
 						lastclicks.shift(); // removing oldest one
-					lastclicks.push(new Date());
+                    var tmstp=new Date().getTime();;
+					lastclicks.push(tmstp);
 					if (lastclicks.length >= 2) {
 						var avg = 0;
+                        var total=0;
 						for (var i = 1; i < lastclicks.length; i++) {
-							avg += (lastclicks[i] - lastclicks[i - 1]);
+					 		total += (lastclicks[i] - lastclicks[i - 1]);
 						}
-						console.log("total diffs: " + avg);
-						avg = avg / (lastclicks.length - 1);
-						console.log("avg diffs: " + avg);
+						avg = total / (lastclicks.length - 1);
 						tempo = Math.round(60 * 1000 / avg);
-						debugO("--tempo", tempo);
+                        console.log(count+") total diffs: " + total);
+						console.log(count+") avg diffs on "+lastclicks.length+": " + avg);
+						console.log(count+") timestamp: "+ tmstp);
+						debugO(count+") tempo", tempo);
 
 					} else {
 						tempo = -1;
@@ -235,6 +248,7 @@ MuseScore {
 				onClicked: {
 					lastclicks = [];
 					tempo = -1;
+                                 count=0;
 				}
 			}
 
