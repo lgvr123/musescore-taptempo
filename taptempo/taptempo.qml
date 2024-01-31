@@ -1,10 +1,13 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import MuseScore 3.0
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
+
+import MuseScore.UiComponents 1.0 as MU
+import MuseScore.Ui 1.0
 
 /**********************
 /* Parking B - Tap Tempo
@@ -14,12 +17,13 @@ import QtQuick.Layouts 1.1
 /* 	- 1.2.0: empty placeholder
 /* 	- 1.2.0: Qt.quit issue
 /* 	- 1.2.1: Port to MS4.0
-/*     - 1.2.2: binding loop causing tempo to be not correctly calculated
+/*  - 1.2.2: binding loop causing tempo to be not correctly calculated
+/*  - 1.2.3: Bug in MU4.x with the clicks count
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "1.2.2"
+    version: "1.2.3"
     readonly property var pluginName: "Tap tempo"
 
     pluginType: "dialog"
@@ -179,17 +183,17 @@ MuseScore {
 			        return text;
 			    }
 
-			    valueFromText: function (text) {
+/*			    valueFromText: function (text) {
 			        var val = (text === "") ? -1 : parseInt(text);
 					if (isNaN(val)) val=-1; 
 			        debugO("valueFromText", val);
 			        return val;
 			    }
-
+*/
 			    onValueChanged: {
-                              if (settingTempo) return;
-                              tempo = value; 
-                              }
+                    if (settingTempo) return;
+                    tempo = value; 
+                    }
 
 			    validator: IntValidator {
 			        locale: txtTempo.locale.name
@@ -198,21 +202,23 @@ MuseScore {
 			    }
 
 			}
-			Button {
+			MU.FlatButton {
 				id: btnTap
 				text: "Tap!"
 
-				font.pointSize: 15
+				//font.pointSize: 15
 
-				background: Rectangle {
+                accentButton: true
+
+				/*background: Rectangle {
 					implicitWidth: 60
 					implicitHeight: 60
 					color: btnTap.down ? "#17a81a" : "#21be2b"
 					radius: 4
-				}
+				}*/
 
 				onClicked: {
-      count+=1;
+                    count+=1;
 					if (lastclicks.length == averageOn)
 						lastclicks.shift(); // removing oldest one
                     var tmstp=new Date().getTime();;
@@ -242,7 +248,7 @@ MuseScore {
 			Layout.fillWidth: true
 			spacing: 10
 
-			Button {
+			MU.FlatButton {
 				id: btnReset
 				text: "Reset"
 				onClicked: {
