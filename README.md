@@ -3,13 +3,16 @@
 <p align="center"><img src="/taptempo/logoTapTempo.png" Alt="logo" width="300" /></p>
 
 ## Download and Install ##
-Download the [last stable version](https://github.com/lgvr123/musescore-taptempo/releases).
+Download the [last stable version](https://github.com/lgvr123/musescore-taptempo/releases) for your version of MuseScore: MU3.6 or MU4.x.
 For installation see [Plugins](https://musescore.org/en/handbook/3/plugins).
+
+## Support of MU3.7
+**NOT SUPPORTED**
+Neither the version for MU3.6 nor the one for MU4.x are working correclty in MU3.7. The plugin is not able to handle tempo above 110-115bpm.
 
 ## Support of MS4.0
 **SUPPORTED**
-
-The *Tap Tempo* plugin has been ported successfully to MuseScore 4.0. It is working well but not as googlooking as it good be. This will be improved once the plugin framework of MS4 will be updated.
+The *Tap Tempo* plugin has been ported successfully to MuseScore 4.x. You need however to use the appropriate version. 
 
 ## Sponsorship ##
 If you appreciate my plugins, you can support and sponsor their development on the following platforms:
