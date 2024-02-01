@@ -1,5 +1,5 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import MuseScore 3.0
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
@@ -14,12 +14,13 @@ import QtQuick.Layouts 1.1
 /* 	- 1.2.0: empty placeholder
 /* 	- 1.2.0: Qt.quit issue
 /* 	- 1.2.1: Port to MS4.0
-/*     - 1.2.2: binding loop causing tempo to be not correctly calculated
+/*  - 1.2.2: binding loop causing tempo to be not correctly calculated
+/*  - 1.2.4: Universal fix slow responsivness in MU3.7 and MU4.x
 /**********************************************/
 MuseScore {
     menuPath: "Plugins." + pluginName
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "1.2.2"
+    version: "1.2.4"
     readonly property var pluginName: "Tap tempo"
 
     pluginType: "dialog"
@@ -186,13 +187,13 @@ MuseScore {
 			        return val;
 			    }
 
-			    onValueChanged: {
-                              if (settingTempo) return;
-                              tempo = value; 
-                              }
-
-			    validator: IntValidator {
-			        locale: txtTempo.locale.name
+                onValueChanged: {
+                    if (settingTempo)
+                        return;
+                    tempo = value;
+                }
+                validator: IntValidator {
+                    locale: txtTempo.locale.name
 			        bottom: 0
 			        top: txtTempo.to
 			    }
@@ -211,8 +212,8 @@ MuseScore {
 					radius: 4
 				}
 
-				onClicked: {
-      count+=1;
+				onReleased: {
+                    count+=1;
 					if (lastclicks.length == averageOn)
 						lastclicks.shift(); // removing oldest one
                     var tmstp=new Date().getTime();;
