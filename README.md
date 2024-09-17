@@ -9,7 +9,9 @@ For installation see [Plugins](https://musescore.org/en/handbook/3/plugins).
 ## Support of MU4
 **SUPPORTED**
 The *Tap Tempo* plugin has been ported successfully to MuseScore 4.x. 
+
 For MuseScore 3.6.2, 3.7, MU4.0-4.3 use the "*Compatibility*" asset.
+
 For MuseScore 4.4 or higher, use the "*4.4*" asset.
 
 ## Sponsorship ##
