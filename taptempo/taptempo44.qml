@@ -1,7 +1,10 @@
-import QtQuick
-import QtQuick.Controls
+import QtQuick 2.9
+import QtQuick.Controls 2.2
 import MuseScore 3.0
-import QtQuick.Layouts
+import QtQuick.Window 2.3
+//import QtQuick.Dialogs 1.2
+//import QtQuick.Controls.Styles 1.4
+import QtQuick.Layouts 1.3
 
 /**********************
 /* Parking B - Tap Tempo - MU4.4
@@ -14,11 +17,12 @@ import QtQuick.Layouts
 /*  - 1.2.2: binding loop causing tempo to be not correctly calculated
 /*  - 1.2.4: Universal fix slow responsivness in MU3.7 and MU4.x
 /*  - 2.0.0: MU4.4 compatibility 
+/*  - 2.0.1: Nicer UI elements on MU4.5
 /**********************************************/
 MuseScore {
     menuPath: "Plugins.Tap Tempo"
     description: "Tap a rythm for adding or changing a tempo marker."
-    version: "2.0.0"
+    version: "2.0.1"
 
     pluginType: "dialog"
 
@@ -31,37 +35,30 @@ MuseScore {
     
     property int count: 0
 
-   
-    title: "Tap Tempo"
-    thumbnailName: "logoTapTempo.png"
+    //4.4 title: "Tap Tempo"
+    
+    //4.4 thumbnailName: "logoTapTempo.png"
+    
+    
+    Component.onCompleted : {
+        
+  if (mscoreMajorVersion >= 4 && mscoreMajorVersion<=3) {
+
+            mainWindow.title = "Tap Tempo" ;
+            mainWindow.thumbnailName = "logoTapTempo.png";
+        }
+    }
 
     readonly property int averageOn: 5
     property var lastclicks: []
     property var tempo: -1
     property bool settingTempo: false
-    property var tempomult: 1
 
     property var tempoElement
+    property alias tempomult: lstMult.unitDuration
 	
 	property var curSegment
 	
-	property var multipliers : [
-		//mult is a tempo-multiplier compared to a crotchet      
-		{text: '\uECA2',               mult: 4     , sym: '<sym>metNoteWhole</sym>' }, // 1/1
-		{text: '\uECA3 \uECB7',        mult: 3     , sym: '<sym>metNoteHalfUp</sym><sym>metAugmentationDot</sym>' }, // 1/2.
-		{text: '\uECA3',               mult: 2     , sym: '<sym>metNoteHalfUp</sym>' }, // 1/2
-		{text: '\uECA5 \uECB7 \uECB7', mult: 1.75  , sym: '<sym>metNoteQuarterUp</sym><sym>metAugmentationDot</sym><sym>metAugmentationDot</sym>' }, // 1/4..
-		{text: '\uECA5 \uECB7',        mult: 1.5   , sym: '<sym>metNoteQuarterUp</sym><sym>metAugmentationDot</sym>' }, // 1/4.
-		{text: '\uECA5',               mult: 1     , sym: '<sym>metNoteQuarterUp</sym>' }, // 1/4
-		{text: '\uECA7 \uECB7 \uECB7', mult: 0.875 , sym: '<sym>metNote8thUp</sym><sym>metAugmentationDot</sym><sym>metAugmentationDot</sym>' }, // 1/8..
-		{text: '\uECA7 \uECB7',        mult: 0.75  , sym: '<sym>metNote8thUp</sym><sym>metAugmentationDot</sym>' }, // 1/8.
-		{text: '\uECA7',               mult: 0.5   , sym: '<sym>metNote8thUp</sym>' }, // 1/8
-		{text: '\uECA9 \uECB7 \uECB7', mult: 0.4375, sym: '<sym>metNote16thUp</sym><sym>metAugmentationDot</sym><sym>metAugmentationDot</sym>' }, //1/16..
-		{text: '\uECA9 \uECB7',        mult: 0.375 , sym: '<sym>metNote16thUp</sym><sym>metAugmentationDot</sym>' }, //1/16.
-		{text: '\uECA9',               mult: 0.25  , sym: '<sym>metNote16thUp</sym>' }, //1/16
-		]
-	
-
 	onRun: {
 	    var selection = curScore.selection;
 	    if (selection != null) {
@@ -82,11 +79,12 @@ MuseScore {
 	            if (tempoElement != null) {
 	                console.log("found text: " + tempoElement.text);
 					var res= findBeatBaseFromMarking(tempoElement);
-					tempomult=res.multiplier;
+                    tempomult = res.multiplier > 0 ? res.multiplier : 1;
 					tempo=res.tempo;
 	                console.log("found mult: " + tempomult);
 
 	            } else {
+                    tempomult = 1; // default la noire
 	                console.log("Couldn't find a tempo text");
 	            }
 	        }
@@ -120,44 +118,11 @@ MuseScore {
 	        Layout.alignment: Qt.AlignHCenter
 	        Layout.fillHeight: true
 
-            ComboBox {
+            TempoUnitBox {
                 id: lstMult
-                model: multipliers
-
-                textRole: "text"
-                
-                // property var valueRole: "mult"
-                property var comboValue: "mult"
-
-                onActivated: {
-                    // loopMode = currentValue;
-                    tempomult = model[currentIndex][comboValue];
-                    console.log(tempomult);
-                }
-
-                Binding on currentIndex {
-                    value: multipliers.map(function (e) {
-                        return e[lstMult.comboValue]
-                    }).indexOf(tempomult);
-                }
-
-	            implicitHeight: 60
-	            implicitWidth: 90
-
-	            font.family: 'MScore Text'
-	            font.pointSize: 15
-
-	            delegate: ItemDelegate {
-	                contentItem: Text {
-	                    text: modelData[lstMult.textRole]
-	                    verticalAlignment: Text.AlignVCenter
-	                    font: lstMult.font
-	                }
-	                highlighted: multipliers.highlightedIndex === index
-
-	            }
-
+                sizeMult: 1.5
 	        }
+   
 			SpinBox {
 			    id: txtTempo
 			    Layout.preferredHeight: 60
@@ -176,7 +141,8 @@ MuseScore {
 
 			    valueFromText: function (text) {
 			        var val = (text === "") ? -1 : parseInt(text);
-					if (isNaN(val)) val=-1; 
+                    if (isNaN(val))
+                        val = -1;
 			        debugO("valueFromText", val);
 			        return val;
 			    }
@@ -237,7 +203,7 @@ MuseScore {
 			Layout.fillWidth: true
 			spacing: 10
 
-			Button {
+			CompatibleButton {
 				id: btnReset
 				text: "Reset"
 				onClicked: {
@@ -257,17 +223,22 @@ MuseScore {
 
 				background.opacity: 0 // hide default white background
 
-				standardButtons: DialogButtonBox.Cancel
-				Button {
+				//standardButtons: DialogButtonBox.Cancel
+				CompatibleButton {
 					text: tempoElement ? "Change" : "Insert"
 					DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+				}
+
+				CompatibleButton {
+					text: "Cancel"
+					DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
 				}
 
 				onAccepted: {
 					//... do the stuff ...
 					console.log("mult: " + tempomult);
 					console.log("tempo: " + tempo);
-					var settings=multipliers.find(function(e) { return e.mult=== tempomult});
+                    /*var settings=multipliers.find(function(e) { return e.mult=== tempomult});
 					
 					if (settings==undefined || tempo<=0) {
 						warningDialog.text="Invalid tempo. Must be >0";
@@ -275,7 +246,9 @@ MuseScore {
 						return;
 					}
 					
-					var tempotext=settings.sym+' = '+tempo;
+                    var tempotext=settings.sym+' = '+tempo;*/
+                    var tempotext = lstMult.unitText + ' = ' + tempo;
+
 					console.log("text: " + tempotext);
 					curScore.startCmd();
 					if (tempoElement!=null) {
@@ -315,7 +288,7 @@ MuseScore {
 	/// Analyses tempo marking text to attempt to discover the base beat being used
 	/// If a beat is detected, returns the following structure:
 	/// @returns { multiplier: float, tempo: int } where
-	/// multiplier = -1 if beat is not detected or not present in our beatBaseList
+    /// multiplier = -1 if the unit duration is not detected or not present in our multiplier list
 	/// tempo = 0 if tempo is not detected
 	function findBeatBaseFromMarking(tempoMarking) {
 	    // First look for metronome marking symbols
@@ -325,17 +298,21 @@ MuseScore {
 	    // strip html tags and split around '='
 		var data = foundTempoText.replace(/<.*?>/g,'').split('=');
 		var tempo=parseInt(data[1]);
-		if (isNaN(tempo)) tempo=0;
-
+        if (isNaN(tempo))
+            tempo = 0;
 
 	    if (foundMetronomeSymbols !== null) {
 	        // Locate the index in our dropdown matching the found beatString
-	        for (var i = multipliers.length; --i >= 0; ) {
-	            if (multipliers[i].sym == foundMetronomeSymbols[0]) {
+            for (var i = lstMult.multipliers.rowCount(); --i >= 0; ) {
+                if (lstMult.multipliers.get(i).sym == foundMetronomeSymbols[0]) {
 	                // Found this marking in the dropdown at metronomeMarkIndex
-	                return {multiplier: multipliers[i].mult, tempo: tempo};
-	            }
-	        }
+                    return {
+                        multiplier: lstMult.multipliers.get(i).mult,
+                        tempo: tempo
+                    };
+                }
+            }
+            console.log("Warn: Couldn't find unit duration for " + foundMetronomeSymbols + " (as <symb> notation)");
 	    } else {
 	        // Metronome marking symbols are substituted with their character entity if the text was edited
 	        // UTF-16 range [\uECA0 - \uECB6] (double whole - 1024th)
@@ -352,18 +329,25 @@ MuseScore {
 	                }
 	                // Locate the index in our dropdown matching the found beatString
 
-	                for (var i = multipliers.length; --i >= 0; ) {
-	                    if (multipliers[i].text == beatString) {
+                    for (var i = lstMult.multipliers.rowCount(); --i >= 0; ) {
+                        if (lstMult.multipliers.get(i).text == beatString) {
 	                        // Found this marking in the dropdown at metronomeMarkIndex
-							return {multiplier: multipliers[i].mult, tempo: tempo};
+                            return {
+                                multiplier: lstMult.multipliers.get(i).mult,
+                                tempo: tempo
+                            };
 	                    }
 	                }
 
 	                break; // Done processing base tempo
 	            }
 	        }
+            console.log("Warn: Couldn't find unit duration for " + foundTempoText + " (as text notation)");
 	    }
-	    return {multiplier: -1, tempo: tempo};
+        return {
+            multiplier: -1,
+            tempo: tempo
+        };
 	}
 
 	// ============================================================
@@ -396,7 +380,8 @@ MuseScore {
         text: "--"
         onAccepted: {
             subtitle = undefined;
-			if (quitOnClose) Qt.quit();
+            if (quitOnClose)
+                Qt.quit();
         }
     }
 
